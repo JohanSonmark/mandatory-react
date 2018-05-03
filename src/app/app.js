@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {makeMove, newGame} from '../logic';
+import {makeMove, newGame, gameMessage} from '../logic';
 
 import Message from './message';
 import Tile from './tile';
@@ -19,24 +19,38 @@ and all tiles in an element with a `board` CSS class.
 */
 
 export default class App extends React.Component {
-  render(){
-    return (
-      <div id="game">
-        <div id="head">
-          Spela tre i rad
-        </div>
-        <div id="board" onClick={(e)=>this.clicked(e)}>
-            <div className="square"></div>
-            <div className="square"></div>
-            <div className="square"></div>
-            <div className="square"></div>
-            <div className="square"></div>
-            <div className="square"></div>
-            <div className="square"></div>
-            <div className="square"></div>
-            <div className="square"></div>
-        </div>
-      </div>
-    );
-  }
+    constructor() {
+        super();
+        this.state = {
+            game: newGame()
+        }
+    }
+    playerMove(i, value){
+        if (value === 1 || value === 2) return;
+        if (this.state.game.winner) return;
+        const newState = makeMove(this.state.game, i);
+        this.setState({ game: newState });
+    }
+
+    resetGame() {
+        this.setState(this.state.game = newGame());
+    }
+
+
+    render(){
+        return (
+            <div className="container">
+                <div className="board">
+                    {this.state.game.board.map((tile, index) => (
+                        <Tile win={this.state.game.line.includes(index)} key={index} value={tile} move={() => this.playerMove(index, tile)}/>
+                    ))}
+                </div>
+                <div className="messageBoard">
+                    <Message showMessage={this.state.game}/>
+                    <button onClick={() => this.resetGame()}>Börja om!</button>
+                </div>
+            </div>
+
+        );
+    }
 }
